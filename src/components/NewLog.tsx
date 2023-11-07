@@ -18,8 +18,11 @@ import DatePicker from './DatePicker';
 import { useLogStore } from '@/store';
 import { useToast } from './ui/use-toast';
 import dayjs from 'dayjs';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 export default function NewLog() {
+  const supapase = createClientComponentClient();
+
   const log = useLogStore((state) => state.log);
   const setLog = useLogStore((state) => state.setLog);
   const setLogs = useLogStore((state) => state.setLogs);
@@ -38,20 +41,28 @@ export default function NewLog() {
     document.getElementById('close-btn')?.click();
   };
 
-  const handleSubmit = () => {
-    try {
-      validateLog();
-      setLogs(log, dayjs(log.date).format('YYYY-MM-DD'));
+  const handleSubmit = async () => {
+    validateLog();
+
+    //call supapase to store data into database on supapase
+    const { data, error } = await supapase
+      .from('logs')
+      .upsert({ ...log, date: dayjs(log.date).format('YYYY-MM-DD') })
+      .select('*')
+      .single();
+
+    if (!error) {
       toast({
         title: 'Successfully create log',
-        description: `${log.hour} in ${log.date.toDateString()}`,
+        description: `${log.hour} in ${log.date as Date}`,
       });
       closeDialog();
-    } catch (error) {
+      setLogs(log, dayjs(log.date).format('YYYY-MM-DD'));
+    } else {
       toast({
         variant: 'destructive',
         title: 'Failed to create log',
-        description: error,
+        description: error.message,
       });
     }
   };
