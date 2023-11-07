@@ -1,3 +1,4 @@
+My Practical Fullstack Time Log Project using  Next.js 13 App Router, Supabase, Zustand, Tailwind
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
